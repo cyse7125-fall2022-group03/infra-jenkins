@@ -1,0 +1,8 @@
+---
+#tasks for networking components
+- import_tasks: create_vpc.yml
+- import_tasks: create_internet_gateway.yml
+- import_tasks: create_subnets.yml
+- import_tasks: create_route_tables.yml
+- import_tasks: create_vpc_security_groups.yml
+- import_tasks: create_ec2_instance.yml

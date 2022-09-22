@@ -1,0 +1,31 @@
+#Step 6 : Ec2 created using components from step 1 - 5 
+
+- name: Gather EC2 instance facts
+  ec2:
+    profile: "{{ aws_profile }}"
+    region: "{{ aws_region }}"
+    instance_type: t2.micro
+    image: "{{ ami_id }}"
+    wait: yes
+    count: 1
+    vpc_subnet_id: "{{ jenkins_vpc_subnets.results[0].subnet.id }}"
+    assign_public_ip: yes
+    instance_tags:
+      app: "{{ tag_value }}"
+  register: jenkins_ec2_instances
+
+- name: associate new elastic IPs to each of the instances
+  ec2_eip:
+    device_id: "{{ item }}"
+    ip: "{{ elastic_ip }}"
+    allow_reassociation: true
+  loop: "{{ jenkins_ec2_instances.instance_ids }}"  
+
+- name: disassociate an elastic IP with a device
+  ec2_eip:
+    device_id: '{{ item.instance_id }}'
+    ip: '{{ item.public_ip_address }}'
+    release_on_disassociation: yes
+    state: absent
+  when: item.public_ip_address is defined
+  with_items: "{{ jenkins_ec2_instances.instances }}"  

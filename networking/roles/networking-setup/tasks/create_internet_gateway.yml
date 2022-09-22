@@ -1,0 +1,10 @@
+# Step 2 : Internet Gateway created with VPC from Step 1  
+- name: Create Internet Gateway
+  ec2_vpc_igw:
+    state: present
+    profile: "{{ aws_profile }}"
+    region: "{{ aws_region }}"
+    vpc_id: "{{ jenkins_vpc.vpc.id }}"
+    tags:
+      Name: "jenkins"
+  register: jenkins_igw
