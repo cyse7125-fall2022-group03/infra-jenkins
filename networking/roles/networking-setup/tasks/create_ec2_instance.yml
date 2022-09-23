@@ -2,10 +2,12 @@
 
 - name: Gather EC2 instance facts
   ec2:
+    key_name: "{{ key_name }}"
     profile: "{{ aws_profile }}"
     region: "{{ aws_region }}"
     instance_type: t2.micro
     image: "{{ ami_id }}"
+    group: "jenkins_sg_{{ jenkins_vpc.vpc.id }}"
     wait: yes
     count: 1
     vpc_subnet_id: "{{ jenkins_vpc_subnets.results[0].subnet.id }}"
@@ -18,14 +20,22 @@
   ec2_eip:
     device_id: "{{ item }}"
     ip: "{{ elastic_ip }}"
-    allow_reassociation: true
+    allow_reassociation: yes
   loop: "{{ jenkins_ec2_instances.instance_ids }}"  
 
-- name: disassociate an elastic IP with a device
-  ec2_eip:
-    device_id: '{{ item.instance_id }}'
-    ip: '{{ item.public_ip_address }}'
-    release_on_disassociation: yes
-    state: absent
-  when: item.public_ip_address is defined
-  with_items: "{{ jenkins_ec2_instances.instances }}"  
+#                                                                     
+# - name: Terminate instances
+#   tasks:
+#     name: Terminate instances that were previously launched
+#     amazon.aws.ec2:
+#       state: 'absent'
+#       instance_ids: '{{ jenkins_ec2_instances.instance_ids }}'  
+
+# - name: disassociate an elastic IP with a device
+#   ec2_eip:
+#     device_id: '{{ item.instance_id }}'
+#     ip: '{{ item.public_ip_address }}'
+#     release_on_disassociation: yes
+#     state: absent
+#   when: item.public_ip_address is defined
+#   with_items: "{{ jenkins_ec2_instances.instances }}"  
