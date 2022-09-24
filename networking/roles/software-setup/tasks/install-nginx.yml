@@ -22,16 +22,11 @@
     responses:
       'Command may disrupt existing ssh connections. Proceed with operation (y|n)?' : 'y'                       
 
-- name: Upgrading Software
-  expect:
-    command: sudo ufw status
-    responses:
-
 - name: delete default nginx site
   file:
     path: /etc/nginx/sites-available/default
     state: absent
-  notify: restart nginx
+  become : yes
 
 - name: copy nginx site.conf
   template:
@@ -40,15 +35,14 @@
     owner: root
     group: root
     mode: '0644'
-  notify: restart nginx
+  become: yes
+
+- name: Reload Nginx
+  service:
+    name: nginx
+    state: reloaded
+  become: yes
 
 - name: Use Certbot to generate certificates
   shell: certbot --nginx -n -d "{{ domain_name }}" --email "{{ email_id }}" --agree-tos --redirect
   become: yes
-
-handlers:
-  - name: restart nginx
-    service:
-      name: nginx
-      state: restarted     
-
