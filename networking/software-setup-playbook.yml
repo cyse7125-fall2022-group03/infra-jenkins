@@ -1,0 +1,88 @@
+# ---
+# - name: "Configure Software"
+#   hosts: localhost
+#   gather_facts: no
+#   roles:
+#   - software-setup
+
+
+- hosts: jenkins-ec2
+  become: yes
+  tasks:
+  - name: "apt-get update"
+    apt:
+      update_cache: yes
+      cache_valid_time: 3600
+
+
+
+  # - name: Stop services to allow certbot to generate a cert.
+  #   service:
+  #     name: "nginx"
+  #     state: stopped    
+
+  # - name: Generate new certificate if one doesn't exist.
+  #   shell: "certbot certonly --standalone --noninteractive --agree-tos --email {{ email_id }} -d {{ domain_name }}"
+
+
+  
+
+  - name: Upgrading Software
+    expect:
+      command: sudo ufw allow OpenSSH
+      responses:
+        'Command may disrupt existing ssh connections. Proceed with operation (y|n)?' : 'y'
+
+  - name: Upgrading Software
+    expect:
+      command: sudo ufw enable
+      responses:
+        'Command may disrupt existing ssh connections. Proceed with operation (y|n)?' : 'y' 
+
+  - name: Upgrading Software
+    expect:
+      command: sudo ufw allow 'Nginx Full'
+      responses:
+        'Command may disrupt existing ssh connections. Proceed with operation (y|n)?' : 'y'               
+
+  - name: Upgrading Software
+    expect:
+      command: sudo ufw allow ssh
+      responses:
+        'Command may disrupt existing ssh connections. Proceed with operation (y|n)?' : 'y'                       
+
+  - name: Upgrading Software
+    expect:
+      command: sudo ufw status
+      responses:
+        'Command may disrupt existing ssh connections. Proceed with operation (y|n)?' : 'y'               
+  
+  - name: delete default nginx site
+    file:
+      path: /etc/nginx/sites-available/default
+      state: absent
+    notify: restart nginx
+
+  - name: copy nginx site.conf
+    template:
+      src: site.conf.j2
+      dest: /etc/nginx/sites-available/default
+      owner: root
+      group: root
+      mode: '0644'
+    notify: restart nginx
+
+
+  handlers:
+    - name: restart nginx
+      service:
+        name: nginx
+        state: restarted  
+
+  - name: certbot create certificate
+    expect:
+      command: sudo certbot --nginx -m {{ email_id }} -d {{ domain_name }} --agree-tos --reinstall --redirect
+      responses:    
+
+
+
