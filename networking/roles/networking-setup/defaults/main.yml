@@ -1,7 +1,5 @@
 ---
 aws_region: us-east-1
-aws_profile: {{ profile_name }}
-key_name: {{ key_name }}
 name: "jenkins-{{ aws_region}}"
 vpc_cidr: 10.0.0.0/16
 vpc_subnets:

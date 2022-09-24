@@ -7,6 +7,15 @@
       "tag:app": "{{ tag_value }}"
   register: ec2_jenkins  
 
+- name: disassociate an elastic IP with a device
+  ec2_eip:
+    device_id: '{{ item.instance_id }}'
+    ip: '{{ item.public_ip_address }}'
+    release_on_disassociation: no
+    state: absent
+  when: item.public_ip_address is defined
+  with_items: "{{ ec2_jenkins.instances }}"   
+
 - name: Kill EC2 Instance
   ec2:
     instance_ids: "{{ ec2_jenkins.instances[0].instance_id }}"
@@ -15,11 +24,4 @@
     region: "{{ aws_region }}"  
     wait: yes
 
-- name: disassociate an elastic IP with a device
-  ec2_eip:
-    device_id: '{{ item.instance_id }}'
-    ip: '{{ item.public_ip_address }}'
-    release_on_disassociation: no
-    state: absent
-  when: item.public_ip_address is defined
-  with_items: "{{ ec2_jenkins.instances }}"      
+   
