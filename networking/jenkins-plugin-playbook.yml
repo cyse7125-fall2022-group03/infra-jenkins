@@ -19,8 +19,8 @@
       instance.setAuthorizationStrategy(strategy)
       instance.save()
      args:
-      user_pwd: "admin"
-     user: admin
+      user_pwd: "{{ password }}"
+     user: "{{ user_name }}"
      password: "{{ adminpwd.stdout }}"
 
   - name: complete setup wizard
@@ -31,14 +31,14 @@
       if (!jenkins.installState.isSetupComplete()) {
         InstallState.INITIAL_SETUP_COMPLETED.initializeState()
       }
-     user: admin
+     user: "{{ user_name }}"
      password: "{{ adminpwd.stdout }}"
 
   - name: install plugin
     jenkins_plugin:
      name: "{{ item }}"
      state: latest
-     url_username: admin
+     url_username: "{{ user_name }}"
      url_password: "{{ adminpwd.stdout }}"
     with_items:
       - ace-editor

@@ -1,10 +1,8 @@
 ---
-- name: "Setup AWS Networking"
-  hosts: jenkins-ec2
+- hosts: jenkins-ec2
   gather_facts: no
   roles:
-  - software-setup
-
+  - software-setup   
 
 
 
