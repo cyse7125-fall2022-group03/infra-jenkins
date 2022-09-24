@@ -9,4 +9,5 @@ ansible-playbook -v -e aws_profile=root -e key_name=csye7125 -e ami_id=ami-09af0
 
 ## To kill the instance:
 
- ansible-playbook -v -e tag_value=jenkins -e aws_profile=root network-termination-playbook.yml 
+ ansible-playbook -vvvv -e aws_profile=dev -e tag_value=jenkins -e vpc_name=vpc_jenkins-us-east-1 network-termination-playbook.yml 
+ 

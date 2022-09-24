@@ -73,16 +73,21 @@
     notify: restart nginx
 
 
+
+  # - name: certbot create certificate
+  #   expect:
+  #     command: sudo certbot --nginx -m {{ email_id }} -d {{ domain_name }} --agree-tos --reinstall --redirect
+  #     responses:   
+  
+  - name: Use Certbot to generate certificates
+    shell: certbot --nginx -n -d "{{ domain_name }}" --email "{{ email_id }}" --agree-tos --redirect
+    become: yes
+
   handlers:
     - name: restart nginx
       service:
         name: nginx
-        state: restarted  
-
-  - name: certbot create certificate
-    expect:
-      command: sudo certbot --nginx -m {{ email_id }} -d {{ domain_name }} --agree-tos --reinstall --redirect
-      responses:    
+        state: restarted     
 
 
 
