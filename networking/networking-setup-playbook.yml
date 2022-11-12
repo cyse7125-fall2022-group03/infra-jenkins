@@ -1,6 +1,6 @@
 ---
 - name: "Setup AWS Networking"
   hosts: localhost
-  gather_facts: no
+  gather_facts: false
   roles:
   - networking-setup

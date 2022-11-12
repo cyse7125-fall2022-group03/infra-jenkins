@@ -1,14 +1,14 @@
-# Step 1 : vpc created 
+# Step 1 : vpc created
 ---
 - name: Create VPC for Jenkins
-  ec2_vpc_net:
+  amazon.aws.ec2_vpc_net:
     state: present
     region: "{{ aws_region }}"
     name: "vpc_{{ name }}"
     cidr_block: "{{ vpc_cidr }}"
-    dns_hostnames: yes
-    dns_support: yes
-    multi_ok: no
+    dns_hostnames: true
+    dns_support: true
+    multi_ok: false
     tenancy: default
     profile: "{{ aws_profile }}"
     tags:

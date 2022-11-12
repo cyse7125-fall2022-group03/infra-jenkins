@@ -1,8 +1,8 @@
-- name: read admin pwd
-  shell: cat /var/lib/jenkins/secrets/initialAdminPassword
+- name: Read admin pwd
+  ansible.builtin.command: cat /var/lib/jenkins/secrets/initialAdminPassword
   register: adminpwd
 
-- name: unlock and add admin user
+- name: Unlock and add admin user
   jenkins_script:
     script: |
     import jenkins.model.*
@@ -20,7 +20,7 @@
     user: "{{ user_name }}"
     password: "{{ adminpwd.stdout }}"
 
-- name: complete setup wizard
+- name: Complete setup wizard
   jenkins_script:
     script: |
     import static jenkins.model.Jenkins.instance as jenkins
@@ -31,7 +31,7 @@
     user: "{{ user_name }}"
     password: "{{ adminpwd.stdout }}"
 
-- name: install plugin
+- name: Install plugin
   jenkins_plugin:
     name: "{{ item }}"
     state: latest

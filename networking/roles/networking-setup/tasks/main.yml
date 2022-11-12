@@ -1,9 +1,14 @@
 ---
-#tasks for networking components
-- import_tasks: create_vpc.yml
-- import_tasks: create_internet_gateway.yml
-- import_tasks: create_subnets.yml
-- import_tasks: create_route_tables.yml
-- import_tasks: create_vpc_security_groups.yml
-- import_tasks: create_ec2_instance.yml
-
+# tasks for networking components
+- name: Create VPC
+  ansible.builtin.import_tasks: create_vpc.yml
+- name: Create IG
+  ansible.builtin.import_tasks: create_internet_gateway.yml
+- name: Create Subnets
+  ansible.builtin.import_tasks: create_subnets.yml
+- name: Create Route Tables
+  ansible.builtin.import_tasks: create_route_tables.yml
+- name: Create VPC SGs
+  ansible.builtin.import_tasks: create_vpc_security_groups.yml
+- name: Create EC2 Instances
+  ansible.builtin.import_tasks: create_ec2_instance.yml

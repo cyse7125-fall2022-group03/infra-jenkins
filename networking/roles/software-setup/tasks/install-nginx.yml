@@ -1,48 +1,49 @@
 - name: Upgrading Software
-  expect:
+  ansible.builtin.expect:
     command: sudo ufw allow OpenSSH
     responses:
-      'Command may disrupt existing ssh connections. Proceed with operation (y|n)?' : 'y'
+      'Command may disrupt existing ssh connections. Proceed with operation (y|n)?': 'y'
 
 - name: Upgrading Software
-  expect:
+  ansible.builtin.expect:
     command: sudo ufw enable
     responses:
-      'Command may disrupt existing ssh connections. Proceed with operation (y|n)?' : 'y' 
+      'Command may disrupt existing ssh connections. Proceed with operation (y|n)?': 'y'
 
 - name: Upgrading Software
-  expect:
+  ansible.builtin.expect:
     command: sudo ufw allow 'Nginx Full'
     responses:
-      'Command may disrupt existing ssh connections. Proceed with operation (y|n)?' : 'y'               
+      'Command may disrupt existing ssh connections. Proceed with operation (y|n)?': 'y'
 
 - name: Upgrading Software
-  expect:
+  ansible.builtin.expect:
     command: sudo ufw allow ssh
     responses:
-      'Command may disrupt existing ssh connections. Proceed with operation (y|n)?' : 'y'                       
+      'Command may disrupt existing ssh connections. Proceed with operation (y|n)?': 'y'
 
-- name: delete default nginx site
-  file:
+- name: Delete default nginx site
+  ansible.builtin.file:
     path: /etc/nginx/sites-available/default
     state: absent
-  become : yes
+  become: true
 
-- name: copy nginx site.conf
-  template:
+- name: Copy nginx site.conf
+  ansible.builtin.template:
     src: site.conf.j2
     dest: /etc/nginx/sites-available/default
     owner: root
     group: root
     mode: '0644'
-  become: yes
+  become: true
 
 - name: Reload Nginx
-  service:
+  ansible.builtin.service:
     name: nginx
     state: reloaded
-  become: yes
+  become: true
 
 - name: Use Certbot to generate certificates
-  shell: certbot --nginx -n -d "{{ domain_name }}" --email "{{ email_id }}" --agree-tos --redirect
-  become: yes
+  ansible.builtin.command: certbot --nginx -n -d "{{ domain_name }}" --email "{{ email_id }}" --agree-tos --redirect
+  become: true
+  changed_when: false

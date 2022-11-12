@@ -1,6 +1,6 @@
-# Step 3 : Subnets created with VPC from Step 1 
+# Step 3 : Subnets created with VPC from Step 1
 - name: Create subnets
-  ec2_vpc_subnet:
+  amazon.aws.ec2_vpc_subnet:
     state: present
     profile: "{{ aws_profile }}"
     region: "{{ aws_region }}"

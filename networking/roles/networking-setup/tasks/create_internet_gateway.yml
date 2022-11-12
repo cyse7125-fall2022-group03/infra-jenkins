@@ -1,6 +1,6 @@
-# Step 2 : Internet Gateway created with VPC from Step 1  
+# Step 2 : Internet Gateway created with VPC from Step 1
 - name: Create Internet Gateway
-  ec2_vpc_igw:
+  amazon.aws.ec2_vpc_igw:
     state: present
     profile: "{{ aws_profile }}"
     region: "{{ aws_region }}"

@@ -1,8 +1,8 @@
-#Step 5 : VPC security groups created with VPC id from Step 1 
+# Step 5 : VPC security groups created with VPC id from Step 1
 - name: "Create vpc security groups"
-  ec2_group:
+  amazon.aws.ec2_group:
     state: present
-    profile: "{{ aws_profile}}"
+    profile: "{{ aws_profile }}"
     region: "{{ aws_region }}"
     vpc_id: "{{ jenkins_vpc.vpc.id }}"
     name: "jenkins_sg_{{ jenkins_vpc.vpc.id }}"
@@ -10,22 +10,22 @@
     rules:
       - proto: tcp
         ports:
-        - 80
+          - 80
         cidr_ip: 0.0.0.0/0
-        rule_desc : allow all on port 80
+        rule_desc: allow all on port 80
       - proto: tcp
         ports:
-        - 8080
+          - 8080
         cidr_ip: 0.0.0.0/0
-        rule_desc : allow all on port 8080
+        rule_desc: allow all on port 8080
       - proto: tcp
         ports:
-        - 443
+          - 443
         cidr_ip: 0.0.0.0/0
-        rule_desc : allow all on port 443
+        rule_desc: allow all on port 443
       - proto: tcp
         ports:
-        - 22
+          - 22
         cidr_ip: 0.0.0.0/0
-        rule_desc : allow all on port 22
+        rule_desc: allow all on port 22
   register: jenkins_sg
