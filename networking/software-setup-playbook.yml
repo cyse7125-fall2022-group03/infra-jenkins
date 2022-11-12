@@ -1,8 +1,6 @@
 ---
-- hosts: jenkins-ec2
-  gather_facts: no
+- name: Software Setup Playbook
+  hosts: jenkins-ec2
+  gather_facts: false
   roles:
-  - software-setup   
-
-
-
+  - software-setup
