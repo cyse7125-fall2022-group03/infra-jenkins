@@ -2,7 +2,10 @@
   hosts: jenkins-ec2
   become: true
   tasks:      
-
+  - name: Read admin pwd
+    ansible.builtin.command: cat /var/lib/jenkins/secrets/initialAdminPassword
+    register: adminpwd
+    
   - name: install pip3
     apt: name=python3-pip state=present 
 
@@ -40,7 +43,7 @@
     community.general.xml:
       path: jenkins_job.xml
       xpath: /flow-definition/definition/script
-      value: "pipeline{ \n                 agent any                           \n environment{                  \n  GIT_BRANCH = \"main\"           \n         GITHUB_TOKEN = \"{{ github_token }}\"          \n    }        \n        stages{          \n           stage({{\"'\"}}Clone repository{{\"'\"}}){        \n                 steps{ \n     git branch: {{\"'\"}}main{{\"'\"}}, credentialsId: {{\"'\"}}jenkinsCreatedCred{{\"'\"}}, url: {{\"'\"}}https://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@github.com/cyse7125-fall2022-group03/jenkinsTesting.git{{\"'\"}}                     \n   }               \n     }                \n    stage({{\"'\"}}release{{\"'\"}}){                \n        steps{                   \n         sh \"npm install @semantic-release/git -D\"               \n             sh \"npm install @semantic-release/changelog -D\"            \n                sh \"npm install semantic-release-helm -D\"                  \n          sh \"npm install @semantic-release/exec -D\"         \n                   sh \"npm install semantic-release-yaml -D\"                 \n           sh \"npx semantic-release\"     \n                   }                    }                }                        }"
+      value: "pipeline{ \n                 agent any                           \n environment{                  \n  GIT_BRANCH = \"main\"           \n         GITHUB_TOKEN = \"{{ github_token }}\"          \n    }        \n        stages{          \n           stage({{\"'\"}}Clone repository{{\"'\"}}){        \n                 steps{ \n     git branch: {{\"'\"}}main{{\"'\"}}, credentialsId: {{\"'\"}}jenkinsCreatedCred{{\"'\"}}, url: {{\"'\"}}https://{{ github_token }}@github.com/{{ github_org }}/{{ github_repo }}.git{{\"'\"}}                     \n   }               \n     }                \n    stage({{\"'\"}}release{{\"'\"}}){                \n        steps{                   \n         sh \"npm install @semantic-release/git -D\"               \n             sh \"npm install @semantic-release/changelog -D\"            \n                sh \"npm install semantic-release-helm -D\"                  \n          sh \"npm install @semantic-release/exec -D\"         \n                   sh \"npm install semantic-release-yaml -D\"                 \n           sh \"npx semantic-release\"     \n                   }                    }                }                        }"
 
   - name: Download CLI jar
     get_url:
@@ -48,11 +51,10 @@
       dest: /opt/jenkins-cli.jar   
 
   - name: Create github credentials
-    shell: java -jar /opt/jenkins-cli.jar -auth jenkins:"{{ password }}" -s http://localhost:8080/ create-credentials-by-xml system::system::jenkins _  < credential.xml
+    shell: java -jar /opt/jenkins-cli.jar -auth "{{ user_id }}":"{{ password }}" -s http://localhost:8080/ create-credentials-by-xml system::system::jenkins _  < credential.xml
 
   - name: Create 1st job       
-    shell: java -jar /opt/jenkins-cli.jar -auth jenkins:"{{ password }}" -s http://localhost:8080/ create-job firstJobByKetki < jenkins_job.xml
+    shell: java -jar /opt/jenkins-cli.jar -auth "{{ user_id }}":"{{ password }}" -s http://localhost:8080/ create-job "{{ job_name }}" < jenkins_job.xml
   
   - name: Read admin pwd
     ansible.builtin.command: cat /var/lib/jenkins/secrets/initialAdminPassword
-    register: adminpwd

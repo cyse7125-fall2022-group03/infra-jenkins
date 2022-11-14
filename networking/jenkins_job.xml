@@ -27,7 +27,7 @@
                             echo "Github branch is ${env.GIT_BRANCH}"
                             echo "Github branch is ${env.GITHUB_TOKEN}"
                     
-                            git branch: &apos;main&apos;, credentialsId: &apos;jenkinsCreatedCred&apos;, url: &apos;https://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@github.com/cyse7125-fall2022-group03/jenkinsTesting.git&apos;
+                            git branch: &apos;main&apos;, credentialsId: &apos;jenkinsCreatedCred&apos;, url: &apos;https://token@github.com/org/repo&apos;
                         }
                     }
 
