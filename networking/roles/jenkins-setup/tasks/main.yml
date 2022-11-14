@@ -1,2 +1,0 @@
-- name: Jenkins Configuration
-  ansible.builtin.import_tasks: jenkins-configuration.yml

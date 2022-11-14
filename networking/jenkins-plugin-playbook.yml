@@ -1,13 +1,12 @@
-- name: "Jenkins plugin playbook"
-  hosts: jenkins-ec2
-  become: true
+- hosts: jenkins-ec2
+  become: yes
   tasks:
-  - name: Read admin pwd
-    ansible.builtin.command: cat /var/lib/jenkins/secrets/initialAdminPassword
+  - name: read admin pwd
+    shell: cat /var/lib/jenkins/secrets/initialAdminPassword
     register: adminpwd
 
-  - name: Unlock and add admin user
-    community.general.web_infrastructure.jenkins_script:
+  - name: unlock and add admin user
+    jenkins_script:
      script: |
       import jenkins.model.*
       import hudson.security.*
@@ -24,8 +23,8 @@
      user: "{{ user_name }}"
      password: "{{ adminpwd.stdout }}"
 
-  - name: Complete setup wizard
-    community.general.web_infrastructure.jenkins_script:
+  - name: complete setup wizard
+    jenkins_script:
      script: |
       import static jenkins.model.Jenkins.instance as jenkins
       import jenkins.install.InstallState
@@ -35,15 +34,15 @@
      user: "{{ user_name }}"
      password: "{{ adminpwd.stdout }}"
 
-  - name: Install plugin
-    community.general.web_infrastructure.jenkins_plugin:
+  - name: install plugin
+    jenkins_plugin:
      name: "{{ item }}"
      state: latest
      url_username: "{{ user_name }}"
      url_password: "{{ adminpwd.stdout }}"
-    register: my_jenkins_plugin_unversioned
+    register: my_jenkins_plugin_unversioned     
     with_items:
-     - ace-editor
+      - ace-editor
       - ant
       - antisamy-markup-formatter
       - apache-httpcomponents-client-4-api
@@ -129,21 +128,21 @@
       - semantic-versioning-plugin
 
   - name: Check if restart is required by any of the unversioned plugins
-    ansible.builtin.set_fact:
-     jenkins_restart_required: true
+    set_fact:
+      jenkins_restart_required: yes
     when: item.changed
     with_items: "{{ my_jenkins_plugin_unversioned.results }}"
 
-  - name: Restart Jenkins if required
-    ansible.builtin.service:
-     name: "jenkins"
-     state: restarted
-    when: jenkins_restart_required
+  - name: Restart Jenkins if required 
+    service:
+      name: jenkins
+      state: restarted      
+    when: jenkins_restart_required      
 
   - name: Reset the fact
-    ansible.builtin.set_fact:
-     jenkins_restart_required: false
-    when: jenkins_restart_required
+    set_fact:
+      jenkins_restart_required: no
+    when: jenkins_restart_required    
 
-  - name: Printing admin password
-    ansible.builtin.command: cat /var/lib/jenkins/secrets/initialAdminPassword
+  - name: printing admin password
+    shell: cat /var/lib/jenkins/secrets/initialAdminPassword    

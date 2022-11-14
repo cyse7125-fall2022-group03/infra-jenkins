@@ -28,14 +28,43 @@
     state: absent
   become: true
 
-- name: Copy nginx site.conf
-  ansible.builtin.template:
-    src: site.conf.j2
-    dest: /etc/nginx/sites-available/default
-    owner: root
-    group: root
-    mode: '0644'
-  become: true
+# - name: Copy nginx site.conf
+#   ansible.builtin.template:
+#     src: site.conf.j2
+#     dest: /etc/nginx/sites-available/default
+#     owner: root
+#     group: root
+#     mode: '0644'
+#   become: true
+
+- name: set up nginx custom configuration block
+  blockinfile:
+    path:  /etc/nginx/sites-available/default
+    create: yes
+    block: |
+      upstream jenkins {
+        server 127.0.0.1:8080 fail_timeout=0;
+      }
+      server {
+              listen 80 default_server;
+              listen [::]:80 default_server;
+              root /var/www/html;
+              index index.html index.htm index.nginx-debian.html;
+              server_name "{{ domain_name }}";
+              location / {
+                      proxy_set_header        Host $host:$server_port;
+                      proxy_set_header        X-Real-IP $remote_addr;
+                      proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+                      proxy_set_header        X-Forwarded-Proto $scheme;
+                      proxy_set_header        Upgrade $http_upgrade;
+                      proxy_set_header        Connection "upgrade";
+                      proxy_pass              http://jenkins;
+              }
+      }
+  become: true  
+
+- name: Set up nginx files
+  command: sudo nginx -t
 
 - name: Reload Nginx
   ansible.builtin.service:

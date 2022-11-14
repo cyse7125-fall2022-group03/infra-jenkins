@@ -1,0 +1,53 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@1254.v3f64639b_11dd">
+    <actions />
+    <description></description>
+    <keepDependencies>false</keepDependencies>
+    <properties>
+        <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
+            <triggers>
+                <com.cloudbees.jenkins.GitHubPushTrigger plugin="github@1.36.0">
+                    <spec></spec>
+                </com.cloudbees.jenkins.GitHubPushTrigger>
+            </triggers>
+        </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
+    </properties>
+    <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@3536.vb_8a_6628079d5">
+        <script>
+            pipeline{
+                agent any
+            
+                environment{
+                    GIT_BRANCH = "main"
+                    GITHUB_TOKEN = "token"
+            }
+                stages{
+                    stage(&apos;Clone repository&apos;){
+                        steps{
+                            echo "Github branch is ${env.GIT_BRANCH}"
+                            echo "Github branch is ${env.GITHUB_TOKEN}"
+                    
+                            git branch: &apos;main&apos;, credentialsId: &apos;jenkinsCreatedCred&apos;, url: &apos;https://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@github.com/cyse7125-fall2022-group03/jenkinsTesting.git&apos;
+                        }
+                    }
+
+                    stage(&apos;release&apos;){
+                        steps{
+                            sh &quot;npm install @semantic-release/git -D&quot;
+                            sh &quot;npm install @semantic-release/changelog -D&quot;
+                            sh &quot;npm install semantic-release-helm -D&quot;
+                            sh &quot;npm install @semantic-release/exec -D&quot;
+                            sh &quot;npm install semantic-release-yaml -D&quot;
+                            sh &quot;npx semantic-release&quot;
+                        }
+                    }
+                }
+            
+            }
+
+</script>
+        <sandbox>true</sandbox>
+    </definition>
+    <triggers />
+    <disabled>false</disabled>
+</flow-definition>
