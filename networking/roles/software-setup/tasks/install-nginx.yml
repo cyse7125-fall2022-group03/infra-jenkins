@@ -73,6 +73,48 @@
   become: true
 
 - name: Use Certbot to generate certificates
-  ansible.builtin.command: certbot --nginx -n -d "{{ domain_name }}" --email "{{ email_id }}" --agree-tos --redirect
+  ansible.builtin.command: certbot --nginx -n -d "{{ domain_name }}" --email "{{ email_id }}" --agree-tos --redirect -v
   become: true
   changed_when: false
+
+
+- name: Ensure repository key is installed for docker
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+  become: true
+
+- name: Ensure Docker Registry is available
+  apt_repository: repo='deb https://download.docker.com/linux/ubuntu bionic stable' state=present
+  become: true
+
+- name: Ensure Docker and Dependencies are installed
+  apt: name=docker-ce update_cache=yes
+  become: true
+
+- name: To provide necessary permissions to communicate to docker socket
+  file:
+    dest: /var/run/docker.sock
+    owner: root
+    group: root
+    mode: 0666
+  become: true
+
+- name: Install kubectl
+  shell: |
+    apt-get update && apt-get install -y apt-transport-https 
+    curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+    echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | tee -a /etc/apt/sources.list.d/kubernetes.list
+    apt-get update
+    apt-get install -y kubectl
+  become: true
+
+- name: Install kops
+  shell: |
+    wget -O kops https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64
+    chmod +x ./kops
+    mv ./kops /usr/local/bin/ 
+  become: true  
+
+
+  

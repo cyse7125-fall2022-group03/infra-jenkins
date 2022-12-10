@@ -1,0 +1,172 @@
+- name: "Jenkins plugin playbook"
+  hosts: jenkins-ec2
+  become: true
+  tasks:      
+  - name: Read admin pwd
+    ansible.builtin.command: cat /var/lib/jenkins/secrets/initialAdminPassword
+    register: adminpwd
+  
+  - name: Copy flyway_url.xml
+    ansible.builtin.template:
+      src: flyway_url.xml
+      dest: /home/ubuntu/     
+      mode: a+x
+    become: true   
+
+  - name: add flyway url to file 
+    community.general.xml:
+      path: flyway_url.xml
+      xpath: /org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl/secret
+      value: "{{ flyway_url }}"    
+
+  - name: Copy rds_txt.xml
+    ansible.builtin.template:
+      src: rds_txt.xml
+      dest: /home/ubuntu/     
+      mode: a+x
+    become: true   
+
+  - name: add rds url to file 
+    community.general.xml:
+      path: rds_txt.xml
+      xpath: /org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl/secret
+      value: "{{ rds_txt }}"      
+
+  - name: Copy aws_access_key_id.xml
+    ansible.builtin.template:
+      src: aws_access_key_id.xml
+      dest: /home/ubuntu/     
+      mode: a+x
+    become: true   
+
+  - name: add aws_access_key_id to file 
+    community.general.xml:
+      path: aws_access_key_id.xml
+      xpath: /org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl/secret
+      value: "{{ aws_access_key_id }}" 
+
+  - name: Copy aws_secret_access_key.xml
+    ansible.builtin.template:
+      src: aws_secret_access_key.xml
+      dest: /home/ubuntu/     
+      mode: a+x
+    become: true   
+
+  - name: add aws_secret_access_key to file 
+    community.general.xml:
+      path: aws_secret_access_key.xml
+      xpath: /org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl/secret
+      value: "{{ aws_secret_access_key }}" 
+
+  - name: Copy aws_default_region.xml
+    ansible.builtin.template:
+      src: aws_default_region.xml
+      dest: /home/ubuntu/     
+      mode: a+x
+    become: true   
+
+  - name: add aws_default_region to file 
+    community.general.xml:
+      path: aws_default_region.xml
+      xpath: /org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl/secret
+      value: "{{ aws_default_region }}" 
+
+  - name: Copy kops_state_store.xml
+    ansible.builtin.template:
+      src: kops_state_store.xml
+      dest: /home/ubuntu/     
+      mode: a+x
+    become: true   
+
+  - name: add kops_state_store to file 
+    community.general.xml:
+      path: kops_state_store.xml
+      xpath: /org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl/secret
+      value: "{{ kops_state_store }}" 
+
+  - name: Copy docker_uname.xml
+    ansible.builtin.template:
+      src: docker_uname.xml
+      dest: /home/ubuntu/     
+      mode: a+x
+    become: true   
+
+  - name: add docker_uname to file 
+    community.general.xml:
+      path: docker_uname.xml
+      xpath: /org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl/secret
+      value: "{{ docker_uname }}" 
+
+  - name: Copy docker_pass.xml
+    ansible.builtin.template:
+      src: docker_pass.xml
+      dest: /home/ubuntu/     
+      mode: a+x
+    become: true   
+
+  - name: add docker_pass to file 
+    community.general.xml:
+      path: docker_pass.xml
+      xpath: /org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl/secret
+      value: "{{ docker_pass }}" 
+
+  - name: Copy cluster_name.xml
+    ansible.builtin.template:
+      src: cluster_name.xml
+      dest: /home/ubuntu/     
+      mode: a+x
+    become: true   
+
+  - name: add cluster_name to file 
+    community.general.xml:
+      path: cluster_name.xml
+      xpath: /org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl/secret
+      value: "{{ cluster_name }}" 
+
+  - name: Copy serviceacc.xml
+    ansible.builtin.template:
+      src: serviceacc.xml
+      dest: /home/ubuntu/     
+      mode: a+x
+    become: true      
+
+  - name: add serviceacc to file 
+    community.general.xml:
+      path: serviceacc.xml
+      xpath: /org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl/secret
+      value: "{{ serviceacc }}" 
+
+  - name: Download CLI jar
+    get_url:
+      url: "{{ download_url }}"
+      dest: /opt/jenkins-cli.jar  
+
+  - name: Create github credentials
+    shell: java -jar /opt/jenkins-cli.jar -auth "{{ user_id }}":"{{ password }}" -s http://localhost:8080/ create-credentials-by-xml system::system::jenkins _  < flyway_url.xml
+
+  - name: Create github credentials
+    shell: java -jar /opt/jenkins-cli.jar -auth "{{ user_id }}":"{{ password }}" -s http://localhost:8080/ create-credentials-by-xml system::system::jenkins _  < rds_url.xml
+
+  - name: Create github credentials
+    shell: java -jar /opt/jenkins-cli.jar -auth "{{ user_id }}":"{{ password }}" -s http://localhost:8080/ create-credentials-by-xml system::system::jenkins _  < aws_access_key_id.xml
+
+  - name: Create github credentials
+    shell: java -jar /opt/jenkins-cli.jar -auth "{{ user_id }}":"{{ password }}" -s http://localhost:8080/ create-credentials-by-xml system::system::jenkins _  < aws_secret_access_key.xml
+
+  - name: Create github credentials
+    shell: java -jar /opt/jenkins-cli.jar -auth "{{ user_id }}":"{{ password }}" -s http://localhost:8080/ create-credentials-by-xml system::system::jenkins _  < aws_default_region.xml
+
+  - name: Create github credentials
+    shell: java -jar /opt/jenkins-cli.jar -auth "{{ user_id }}":"{{ password }}" -s http://localhost:8080/ create-credentials-by-xml system::system::jenkins _  < kops_state_store.xml
+
+  - name: Create github credentials
+    shell: java -jar /opt/jenkins-cli.jar -auth "{{ user_id }}":"{{ password }}" -s http://localhost:8080/ create-credentials-by-xml system::system::jenkins _  < docker_uname.xml
+
+  - name: Create github credentials
+    shell: java -jar /opt/jenkins-cli.jar -auth "{{ user_id }}":"{{ password }}" -s http://localhost:8080/ create-credentials-by-xml system::system::jenkins _  < docker_pass.xml
+
+  - name: Create github credentials
+    shell: java -jar /opt/jenkins-cli.jar -auth "{{ user_id }}":"{{ password }}" -s http://localhost:8080/ create-credentials-by-xml system::system::jenkins _  < cluster_name.xml    
+
+  - name: Create github credentials
+    shell: java -jar /opt/jenkins-cli.jar -auth "{{ user_id }}":"{{ password }}" -s http://localhost:8080/ create-credentials-by-xml system::system::jenkins _  < serviceacc.xml    

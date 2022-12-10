@@ -1,0 +1,6 @@
+<org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl> 
+    <scope>GLOBAL</scope>                                                                                          
+    <id>AWS_DEFAULT_REGION</id> 
+    <secret>us-east-1</secret> 
+    <description>AWS DEFAULT REGION</description> 
+ </org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl>

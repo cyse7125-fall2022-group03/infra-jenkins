@@ -1,0 +1,6 @@
+<org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl> 
+    <scope>GLOBAL</scope>                                                                                          
+    <id>CLUSTER_NAME</id> 
+    <secret>dev.aws.ketkikule.me</secret> 
+    <description>CLUSTER NAME</description> 
+ </org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl>

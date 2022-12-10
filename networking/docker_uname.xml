@@ -1,0 +1,6 @@
+<org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl> 
+    <scope>GLOBAL</scope>                                                                                          
+    <id>DOCKER_UNAME</id> 
+    <secret>kuleketki</secret> 
+    <description>DOCKER UNAME</description> 
+ </org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl>
