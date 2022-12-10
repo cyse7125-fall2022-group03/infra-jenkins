@@ -1,53 +1,93 @@
-<?xml version='1.1' encoding='UTF-8'?>
-<flow-definition plugin="workflow-job@1254.v3f64639b_11dd">
-    <actions />
-    <description></description>
-    <keepDependencies>false</keepDependencies>
-    <properties>
-        <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
-            <triggers>
-                <com.cloudbees.jenkins.GitHubPushTrigger plugin="github@1.36.0">
-                    <spec></spec>
-                </com.cloudbees.jenkins.GitHubPushTrigger>
-            </triggers>
-        </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
-    </properties>
-    <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@3536.vb_8a_6628079d5">
-        <script>
-            pipeline{
-                agent any
-            
-                environment{
-                    GIT_BRANCH = "main"
-                    GITHUB_TOKEN = "token"
-            }
-                stages{
-                    stage(&apos;Clone repository&apos;){
-                        steps{
-                            echo "Github branch is ${env.GIT_BRANCH}"
-                            echo "Github branch is ${env.GITHUB_TOKEN}"
-                    
-                            git branch: &apos;main&apos;, credentialsId: &apos;jenkinsCreatedCred&apos;, url: &apos;https://token@github.com/org/repo&apos;
-                        }
-                    }
+pipeline{
+    agent any                           
+    environment{                          
+        GITHUB_TOKEN = credentials('GITHUB_TOKEN')
+        DOCK_PASS = credentials('DOCKER_PASSWORD')
+        DOCK_UNAME = credentials('DOCK_UNAME')
+        FLYWAY_URL = credentials('FLYWAY_URL')
+        RDS_URL = credentials('RDS_URL')
+        GITHUB_TOKEN = credentials('GITHUB_TOKEN')
+        AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+        AWS_DEFAULT_REGION = credentials('AWS_DEFAULT_REGION')
+        KOPS_STATE_STORE = credentials('KOPS_STATE_STORE')
 
-                    stage(&apos;release&apos;){
-                        steps{
-                            sh &quot;npm install @semantic-release/git -D&quot;
-                            sh &quot;npm install @semantic-release/changelog -D&quot;
-                            sh &quot;npm install semantic-release-helm -D&quot;
-                            sh &quot;npm install @semantic-release/exec -D&quot;
-                            sh &quot;npm install semantic-release-yaml -D&quot;
-                            sh &quot;npx semantic-release&quot;
-                        }
+        CLUSTER_NAME = credentials('CLUSTER_NAME')
+        SERVICEACC_NAME = credentials('SERVICEACC_NAME')
+        
+    }        
+    stages{
+        
+        stage('Clone') {
+            steps{
+                
+                git branch: 'main', credentialsId: 'jenkinsCreatedCred', url: "https://${GITHUB_TOKEN}@github.com/cyse7125-fall2022-group03/webapp.git"
+                
+                script {
+                    git_hash = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
+                }
+                
+                
+
+            }
+        }   
+        
+    
+        stage('compile') {
+                steps {  
+                    withMaven{
+                        sh "./mvnw clean"
+                        sh "./mvnw package"
                     }
                 }
-            
-            }
+        }
+        
+        
+        stage('Build docker Image') {
+            steps {
+                sh"""
+                    docker build -t csye7125fall2022group03/dockrepo:"${git_hash}" .
+                    """
+                }
+        }
 
-</script>
-        <sandbox>true</sandbox>
-    </definition>
-    <triggers />
-    <disabled>false</disabled>
-</flow-definition>
+        stage('Login docker') {
+            steps {
+                    sh 'docker login -u ${DOCK_UNAME} -p ${DOCK_PASS}'
+                }
+        }
+
+
+
+        stage('Push') {
+            steps {
+                    sh """
+                    docker push csye7125fall2022group03/dockrepo:"${git_hash}"
+                    """
+                }
+        }
+        
+        
+        stage('Clone repository'){    
+
+            steps {
+            git branch: 'main', credentialsId: 'jenkinsCreatedCred', url: "https://${GITHUB_TOKEN}@github.com/cyse7125-fall2022-group03/helm-chart.git"
+            }
+        }
+    
+        stage ('Deploy') {
+    
+            steps {                
+            sh "export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}"
+            sh "export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"
+            sh "export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}"
+            sh "export KOPS_STATE_STORE=${KOPS_STATE_STORE}"
+            sh "kops export kubecfg ${CLUSTER_NAME} --state ${KOPS_STATE_STORE} --${SERVICEACC_NAME}"
+            sh "helm upgrade --install --wait --set configmap.dbHost=${RDS_URL},flyway.url=${FLYWAY_URL},image.tag=${git_hash} app ./app"
+            }
+    }
+
+}
+
+        
+}                

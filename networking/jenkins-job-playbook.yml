@@ -5,9 +5,17 @@
   - name: Read admin pwd
     ansible.builtin.command: cat /var/lib/jenkins/secrets/initialAdminPassword
     register: adminpwd
-    
+  
+  - name: Only run "update_cache=yes" if the last one is more than 3600 seconds ago
+    ansible.builtin.apt:
+      update_cache: yes
+      cache_valid_time: 3600
+
   - name: install pip3
-    apt: name=python3-pip state=present 
+    apt: name=python3-pip state=present
+
+  - name: Upgrade all apt packages
+    apt: upgrade=dist force_apt_get=yes
 
   - name: Install lxml
     pip: name=lxml
@@ -39,11 +47,23 @@
       xpath: /com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl/password
       value: "{{ github_token }}"    
 
-  - name: add github token to job
+  # - name: add github token to job
+  #   community.general.xml:
+  #     path: jenkins_job.xml
+  #     xpath: /flow-definition/definition/script
+  #     value: "pipeline{ \n                 agent any                           \n environment{                  \n  GIT_BRANCH = \"main\"           \n         GITHUB_TOKEN = \"{{ github_token }}\"          \n    }        \n        stages{          \n           stage({{\"'\"}}Clone repository{{\"'\"}}){        \n                 steps{ \n     git branch: {{\"'\"}}main{{\"'\"}}, credentialsId: {{\"'\"}}jenkinsCreatedCred{{\"'\"}}, url: {{\"'\"}}https://{{ github_token }}@github.com/{{ github_org }}/{{ github_repo }}.git{{\"'\"}}                     \n   }               \n     }                \n    stage({{\"'\"}}release{{\"'\"}}){                \n        steps{                   \n         sh \"npm install @semantic-release/git -D\"               \n             sh \"npm install @semantic-release/changelog -D\"            \n                sh \"npm install semantic-release-helm -D\"                  \n          sh \"npm install @semantic-release/exec -D\"         \n                   sh \"npm install semantic-release-yaml -D\"                 \n           sh \"npx semantic-release\"     \n                   }                    }                }                        }"
+  - name: Copy github_token.xml
+    ansible.builtin.template:
+      src: github_token.xml
+      dest: /home/ubuntu/     
+      mode: a+x
+    become: true      
+
+  - name: add github_token to file 
     community.general.xml:
-      path: jenkins_job.xml
-      xpath: /flow-definition/definition/script
-      value: "pipeline{ \n                 agent any                           \n environment{                  \n  GIT_BRANCH = \"main\"           \n         GITHUB_TOKEN = \"{{ github_token }}\"          \n    }        \n        stages{          \n           stage({{\"'\"}}Clone repository{{\"'\"}}){        \n                 steps{ \n     git branch: {{\"'\"}}main{{\"'\"}}, credentialsId: {{\"'\"}}jenkinsCreatedCred{{\"'\"}}, url: {{\"'\"}}https://{{ github_token }}@github.com/{{ github_org }}/{{ github_repo }}.git{{\"'\"}}                     \n   }               \n     }                \n    stage({{\"'\"}}release{{\"'\"}}){                \n        steps{                   \n         sh \"npm install @semantic-release/git -D\"               \n             sh \"npm install @semantic-release/changelog -D\"            \n                sh \"npm install semantic-release-helm -D\"                  \n          sh \"npm install @semantic-release/exec -D\"         \n                   sh \"npm install semantic-release-yaml -D\"                 \n           sh \"npx semantic-release\"     \n                   }                    }                }                        }"
+      path: github_token.xml
+      xpath: /org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl/secret
+      value: "{{ github_token }}" 
 
   - name: Download CLI jar
     get_url:

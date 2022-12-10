@@ -1,0 +1,6 @@
+<org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl> 
+    <scope>GLOBAL</scope>                                                                                          
+    <id>GITHUB_TOKEN</id> 
+    <secret></secret> 
+    <description>GITHUB TOKEN</description> 
+ </org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl>

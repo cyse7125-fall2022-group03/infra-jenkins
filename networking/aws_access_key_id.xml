@@ -1,0 +1,6 @@
+<org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl> 
+    <scope>GLOBAL</scope>                                                                                          
+    <id>AWS_ACCESS_KEY_ID</id> 
+    <secret>AKIAZ3ZIQD6VBWR3VGVD</secret> 
+    <description>AWS ACCESS KEY</description> 
+ </org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl>

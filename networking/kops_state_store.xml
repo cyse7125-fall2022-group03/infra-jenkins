@@ -1,0 +1,6 @@
+<org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl> 
+    <scope>GLOBAL</scope>                                                                                          
+    <id>KOPS_STATE_STORE</id> 
+    <secret>s3://dev.ketkikule.me/</secret> 
+    <description>KOPS STATE STORE</description> 
+ </org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl>

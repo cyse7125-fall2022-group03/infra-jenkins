@@ -1,0 +1,6 @@
+<org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl> 
+    <scope>GLOBAL</scope>                                                                                          
+    <id>SERVICEACC_NAME</id> 
+    <secret>admin</secret> 
+    <description>SERVICEACC NAME</description> 
+ </org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl>

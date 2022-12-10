@@ -1,0 +1,6 @@
+<org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl> 
+    <scope>GLOBAL</scope>                                                                                          
+    <id>FLYWAY_URL</id> 
+    <secret>jdbc:mysql://terraform-20221210044904799900000001.ckxaha0ycc78.us-east-1.rds.amazonaws.com:3306/todo</secret> 
+    <description>FLYWAY URL</description> 
+ </org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl>
